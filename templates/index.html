@@ -1,7 +1,565 @@
-{% extends "base.html" %}
-{% block title %}SentimenMBG – Analisis Opini Publik{% endblock %}
+{% extends "base.html" %} {% block title %}SentimenMBG – Analisis Opini Publik{% endblock %} {% block content %}
 
-{% block content %}
+<style>
+  /* ── Google Font import ─────────────────────────────────────── */
+  @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap");
+
+  /* ── Root palette ───────────────────────────────────────────── */
+  :root {
+    --brand-blue: #1a6ef5;
+    --brand-navy: #0a3060;
+    --brand-mid: #2e5fa3;
+    --brand-teal: #38bdf8;
+    --brand-teal-soft: #e0f4fb;
+    --surface: #ffffff;
+    --surface-alt: #f6fafd;
+    --bg-page: #f2f7fb;
+    --border: rgba(26, 110, 245, 0.12);
+    --border-soft: rgba(26, 110, 245, 0.07);
+    --text-primary: #0b2540;
+    --text-secondary: #406080;
+    --text-muted: #7fa8c9;
+    --shadow-sm: 0 2px 12px rgba(10, 48, 96, 0.08);
+    --shadow-md: 0 8px 32px rgba(10, 48, 96, 0.12);
+    --shadow-lg: 0 20px 60px rgba(10, 48, 96, 0.16);
+
+    /* typography */
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+
+  /* ── Reset / body ───────────────────────────────────────────── */
+  body {
+    background: var(--bg-page) !important;
+    color: var(--text-primary) !important;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Hero section ───────────────────────────────────────────── */
+  .hero-section {
+    position: relative;
+    overflow: hidden;
+    padding: 5.5rem 0 5rem;
+    background: linear-gradient(175deg, #dbeeff 0%, #e8f4fe 30%, #f0f9ff 65%, #f2f7fb 100%);
+  }
+
+  /* Ambient blobs — organic feel */
+  .hero-section::before,
+  .hero-section::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(72px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero-section::before {
+    width: 520px;
+    height: 520px;
+    top: -160px;
+    right: -80px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, transparent 70%);
+  }
+  .hero-section::after {
+    width: 380px;
+    height: 380px;
+    bottom: -100px;
+    left: -60px;
+    background: radial-gradient(circle, rgba(26, 110, 245, 0.14) 0%, transparent 70%);
+  }
+
+  /* Subtle mesh grid */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(26, 110, 245, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(26, 110, 245, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-section .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Eyebrow pill ───────────────────────────────────────────── */
+  .eyebrow-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(26, 110, 245, 0.2);
+    color: var(--brand-mid);
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.4rem 1.05rem;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(26, 110, 245, 0.1);
+  }
+
+  .eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-blue);
+    box-shadow: 0 0 0 3px rgba(26, 110, 245, 0.18);
+    animation: pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 3px rgba(26, 110, 245, 0.18);
+    }
+    50% {
+      box-shadow: 0 0 0 7px rgba(26, 110, 245, 0.05);
+    }
+  }
+
+  /* ── Hero headline ──────────────────────────────────────────── */
+  .hero-title {
+    font-size: clamp(2.1rem, 5.5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.12;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .gradient-text {
+    background: linear-gradient(100deg, var(--brand-blue) 15%, #0ea5e9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Hero subtitle ──────────────────────────────────────────── */
+  .hero-sub {
+    font-size: 1.02rem;
+    color: var(--text-secondary);
+    max-width: 520px;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+
+  /* ── Form card ──────────────────────────────────────────────── */
+  .form-card {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 24px;
+    padding: 2.5rem 2.75rem;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.8) inset,
+      var(--shadow-lg);
+    max-width: 600px;
+    position: relative;
+  }
+
+  /* Subtle top highlight line */
+  .form-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 2rem;
+    right: 2rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9) 40%, rgba(255, 255, 255, 0.9) 60%, transparent);
+    border-radius: 1px;
+  }
+
+  .form-card .form-label {
+    color: var(--text-primary);
+    font-weight: 650;
+    font-size: 0.875rem;
+    margin-bottom: 0.55rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Input group */
+  .form-card .input-group-text {
+    background: var(--surface-alt) !important;
+    border: 1px solid var(--border) !important;
+    border-right: none !important;
+    color: var(--text-muted);
+    border-radius: 12px 0 0 12px !important;
+    padding-left: 1rem;
+    padding-right: 0.75rem;
+  }
+
+  .form-card .form-control {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: none !important;
+    color: var(--text-primary);
+    font-size: 0.93rem;
+    border-radius: 0 12px 12px 0 !important;
+    padding: 0.7rem 1rem 0.7rem 0.5rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      background 0.2s;
+    height: auto;
+  }
+
+  .form-card .form-control:focus {
+    background: #fff;
+    border-color: var(--brand-blue) !important;
+    box-shadow: 0 0 0 3px rgba(26, 110, 245, 0.12);
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  /* Make input-group look unified on focus */
+  .form-card .input-group:focus-within .input-group-text {
+    border-color: var(--brand-blue) !important;
+    background: #fff !important;
+  }
+
+  .form-card .form-control::placeholder {
+    color: #aac8e0;
+    font-size: 0.88rem;
+  }
+
+  .form-card .form-text code {
+    background: #eaf4fb;
+    color: var(--brand-mid);
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    font-size: 0.77rem;
+    font-family: "SF Mono", "Fira Code", monospace;
+  }
+
+  /* Slider track */
+  .form-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-teal));
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    background: transparent;
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .form-range::-moz-range-track {
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-teal));
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2.5px solid var(--brand-blue);
+    box-shadow: 0 2px 8px rgba(26, 110, 245, 0.25);
+    margin-top: -7px;
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s;
+    cursor: pointer;
+  }
+
+  .form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 14px rgba(26, 110, 245, 0.35);
+  }
+
+  .form-range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2.5px solid var(--brand-blue);
+    box-shadow: 0 2px 8px rgba(26, 110, 245, 0.25);
+    cursor: pointer;
+  }
+
+  /* Slider label area */
+  .slider-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.45rem;
+  }
+
+  /* Count badge */
+  .count-badge {
+    background: var(--brand-blue);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+
+  /* Submit button */
+  .btn-analyze {
+    background: linear-gradient(135deg, var(--brand-blue) 0%, #0d54c2 100%);
+    border: none;
+    border-radius: 14px;
+    color: #fff !important;
+    font-size: 0.97rem;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    letter-spacing: 0.01em;
+    transition:
+      transform 0.17s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.17s,
+      opacity 0.15s;
+    box-shadow:
+      0 4px 20px rgba(26, 110, 245, 0.35),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Shine sweep on hover */
+  .btn-analyze::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.45s ease;
+  }
+
+  .btn-analyze:hover:not(:disabled)::after {
+    left: 125%;
+  }
+
+  .btn-analyze:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 28px rgba(26, 110, 245, 0.42),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+  }
+
+  .btn-analyze:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 3px 12px rgba(26, 110, 245, 0.28);
+  }
+
+  .btn-analyze:disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+  }
+
+  /* Alert error */
+  .form-card .alert {
+    background: rgba(239, 68, 68, 0.06) !important;
+    border: 1px solid rgba(239, 68, 68, 0.18) !important;
+    border-radius: 14px !important;
+    color: #b91c1c !important;
+    font-size: 0.875rem;
+  }
+
+  /* ── Features section ───────────────────────────────────────── */
+  .features-section {
+    background: var(--bg-page);
+    border-top: 1px solid var(--border-soft);
+    padding: 4rem 0 4.5rem;
+  }
+
+  .features-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid rgba(26, 110, 245, 0.08);
+    border-radius: 20px;
+    padding: 2rem 1.75rem;
+    height: 100%;
+    transition:
+      transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.22s;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .feat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .feat-icon.g {
+    background: linear-gradient(135deg, #dbf3fa, #c7eaf7);
+    color: var(--brand-navy);
+  }
+  .feat-icon.y {
+    background: linear-gradient(135deg, #dce8ff, #c8d9ff);
+    color: var(--brand-blue);
+  }
+  .feat-icon.e {
+    background: linear-gradient(135deg, #d4e6f5, #bdd5ee);
+    color: var(--brand-navy);
+  }
+
+  .feature-title {
+    font-weight: 720;
+    font-size: 0.93rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .feature-desc {
+    font-size: 0.845rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .feature-desc strong {
+    color: var(--brand-blue);
+    font-weight: 600;
+  }
+
+  /* ── Loading overlay ────────────────────────────────────────── */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(242, 247, 251, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    z-index: 9999;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-overlay.d-none {
+    display: none !important;
+  }
+
+  .loading-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(26, 110, 245, 0.12);
+    border-radius: 28px;
+    padding: 2.75rem 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+  }
+
+  .spinner-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid rgba(26, 110, 245, 0.12);
+    border-top-color: var(--brand-blue);
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+  }
+
+  .loading-overlay h5 {
+    color: var(--text-primary) !important;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+
+  .loading-step {
+    display: flex;
+    align-items: center;
+    padding: 0.55rem 1rem;
+    border-radius: 12px;
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+    transition:
+      background 0.3s,
+      color 0.3s,
+      transform 0.2s;
+    font-weight: 500;
+  }
+
+  .loading-step.active {
+    background: rgba(26, 110, 245, 0.08);
+    color: var(--brand-navy);
+    font-weight: 650;
+    transform: translateX(4px);
+  }
+
+  .loading-step i {
+    color: var(--brand-blue);
+    opacity: 0.7;
+  }
+
+  .loading-step.active i {
+    opacity: 1;
+  }
+
+  /* ── Utility ─────────────────────────────────────────────────── */
+  @media (max-width: 576px) {
+    .form-card {
+      padding: 1.75rem 1.5rem;
+      border-radius: 20px;
+    }
+    .hero-section {
+      padding: 4rem 0 3.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eyebrow-dot,
+    .spinner-ring,
+    .btn-analyze::after {
+      animation: none;
+    }
+  }
+</style>
 
 <!-- ── Hero ──────────────────────────────────────────────────── -->
 <section class="hero-section">
@@ -10,7 +568,6 @@
   <div class="container position-relative">
     <div class="row justify-content-center text-center">
       <div class="col-lg-9">
-
         <!-- Eyebrow pill -->
         <div class="mb-4">
           <span class="eyebrow-pill">
@@ -21,70 +578,45 @@
 
         <!-- Headline -->
         <h1 class="hero-title mb-4">
-          Pahami Opini Publik<br>
-          Terhadap Program<br>
+          Pahami Opini Publik<br />
+          Terhadap Program<br />
           <span class="gradient-text">Makan Bergizi Gratis</span>
         </h1>
 
         <!-- Subtitle -->
-        <p class="hero-sub mb-5 mx-auto">
-          Masukkan URL video YouTube seputar MBG — sistem akan mengambil komentar,
-          memproses teks, lalu mengklasifikasikan sentimen secara otomatis
-          menggunakan model machine learning terlatih.
-        </p>
+        <p class="hero-sub mb-5 mx-auto">Masukkan URL video YouTube seputar MBG maka sistem akan mengambil komentar, memproses teks, lalu mengklasifikasikan sentimen secara otomatis menggunakan model machine learning terlatih.</p>
 
         <!-- ── Form card ── -->
         <div class="form-card mx-auto text-start">
-
           {% if error %}
-          <div class="alert d-flex align-items-start gap-2 mb-4"
-               style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);border-radius:12px;color:#fca5a5;" role="alert">
+          <div class="alert d-flex align-items-start gap-2 mb-4" role="alert">
             <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
             <div>{{ error }}</div>
           </div>
           {% endif %}
 
           <form method="POST" action="{{ url_for('analyze') }}" id="analyzeForm">
-
             <!-- URL input -->
             <div class="mb-4">
-              <label class="form-label" for="youtube_url">
-                <i class="bi bi-youtube me-1" style="color:#f43f5e"></i>URL Video YouTube
-              </label>
+              <label class="form-label" for="youtube_url"> <i class="bi bi-youtube me-1" style="color: #dc2626"></i>URL Video YouTube </label>
               <div class="input-group input-group-lg">
-                <span class="input-group-text" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);">
-                  <i class="bi bi-link-45deg" style="color:var(--text-muted)"></i>
+                <span class="input-group-text">
+                  <i class="bi bi-link-45deg"></i>
                 </span>
-                <input
-                  type="url"
-                  class="form-control border-start-0 ps-0"
-                  id="youtube_url"
-                  name="youtube_url"
-                  placeholder= "&nbsp https://www.youtube.com/watch?v=..."
-                  value="{{ url or '' }}"
-                  required
-                />
+                <input type="url" class="form-control border-start-0 ps-0" id="youtube_url" name="youtube_url" placeholder="&nbsp https://www.youtube.com/watch?v=..." value="{{ url or '' }}" required />
               </div>
-              <div class="form-text mt-1" style="color:var(--text-muted);font-size:.8rem;">
-                Contoh: <code>https://www.youtube.com/watch?v=dQw4w9WgXcQ</code>
-              </div>
+              <div class="form-text mt-2" style="font-size: 0.78rem; color: var(--text-muted)">Contoh: <code>https://www.youtube.com/watch?v=dQw4w9WgXcQ</code></div>
             </div>
 
             <!-- Slider -->
             <div class="mb-5">
               <label class="form-label d-flex align-items-center gap-2" for="max_comments">
-                <i class="bi bi-chat-dots"></i>
+                <i class="bi bi-chat-dots" style="color: var(--brand-blue)"></i>
                 Jumlah Komentar
                 <span class="count-badge" id="commentCountBadge">500</span>
               </label>
-              <input
-                type="range"
-                class="form-range"
-                id="max_comments"
-                name="max_comments"
-                min="50" max="1000" step="50" value="500"
-              />
-              <div class="d-flex justify-content-between mt-1" style="font-size:.75rem;color:var(--text-muted);">
+              <input type="range" class="form-range" id="max_comments" name="max_comments" min="50" max="1000" step="50" value="500" />
+              <div class="slider-meta d-flex justify-content-between">
                 <span>50</span>
                 <span>Maks. 1.000 komentar</span>
               </div>
@@ -93,27 +625,21 @@
             <!-- Submit -->
             <button type="submit" class="btn btn-analyze w-100" id="analyzeBtn">
               <span class="btn-text"><i class="bi bi-search me-2"></i>Mulai Analisis</span>
-              <span class="btn-loading d-none">
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses…
-              </span>
+              <span class="btn-loading d-none"> <span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses… </span>
             </button>
-
           </form>
         </div>
         <!-- /form card -->
-
       </div>
     </div>
   </div>
 </section>
 
-
 <!-- ── Feature cards ─────────────────────────────────────────── -->
 <section class="features-section">
   <div class="container">
-    <p class="text-center mb-4" style="font-size:.75rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;">Yang akan Anda dapatkan</p>
+    <p class="features-eyebrow text-center mb-4">Yang akan Anda dapatkan</p>
     <div class="row g-4 justify-content-center">
-
       <div class="col-sm-6 col-lg-3">
         <div class="feature-card">
           <div class="feat-icon g"><i class="bi bi-emoji-smile-fill"></i></div>
@@ -133,26 +659,24 @@
       <div class="col-sm-6 col-lg-3">
         <div class="feature-card">
           <div class="feat-icon e"><i class="bi bi-robot"></i></div>
-          <p class="feature-title">Model ML Terlatih</p>
+          <p class="feature-title">Model Terlatih</p>
           <p class="feature-desc">Preprocessing teks Bahasa Indonesia — normalisasi kata gaul, stopword removal, dan stemming.</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
-
 <!-- ── Loading overlay ───────────────────────────────────────── -->
 <div class="loading-overlay d-none" id="loadingOverlay">
-  <div class="text-center" style="max-width:460px;padding:2rem;">
-    <div class="position-relative mx-auto mb-4" style="width:110px;height:110px;">
+  <div class="loading-card">
+    <div class="position-relative mx-auto mb-4" style="width: 100px; height: 100px">
       <div class="spinner-ring"></div>
       <div class="spinner-center">🍽️</div>
     </div>
-    <h5 class="text-white mb-1">Mengambil Komentar…</h5>
-    <p style="color:var(--text-muted);font-size:.88rem;">Ini mungkin memakan waktu beberapa menit</p>
-    <div class="mt-4">
+    <h5 class="mb-1">Mengambil Komentar…</h5>
+    <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem">Ini mungkin memakan waktu beberapa menit</p>
+    <div>
       <div class="loading-step active" id="step1"><i class="bi bi-youtube me-2"></i>Mengambil komentar YouTube</div>
       <div class="loading-step" id="step2"><i class="bi bi-cpu me-2"></i>Preprocessing teks</div>
       <div class="loading-step" id="step3"><i class="bi bi-robot me-2"></i>Menjalankan model ML</div>
@@ -161,30 +685,28 @@
   </div>
 </div>
 
-{% endblock %}
-
-{% block extra_scripts %}
+{% endblock %} {% block extra_scripts %}
 <script>
-  const slider = document.getElementById('max_comments');
-  const badge  = document.getElementById('commentCountBadge');
-  slider.addEventListener('input', () => {
-    badge.textContent = parseInt(slider.value).toLocaleString('id-ID');
+  const slider = document.getElementById("max_comments");
+  const badge = document.getElementById("commentCountBadge");
+  slider.addEventListener("input", () => {
+    badge.textContent = parseInt(slider.value).toLocaleString("id-ID");
   });
 
-  const form    = document.getElementById('analyzeForm');
-  const overlay = document.getElementById('loadingOverlay');
+  const form = document.getElementById("analyzeForm");
+  const overlay = document.getElementById("loadingOverlay");
 
-  form.addEventListener('submit', () => {
-    document.querySelector('.btn-text').classList.add('d-none');
-    document.querySelector('.btn-loading').classList.remove('d-none');
-    document.getElementById('analyzeBtn').disabled = true;
-    overlay.classList.remove('d-none');
-    const steps  = ['step1','step2','step3','step4'];
+  form.addEventListener("submit", () => {
+    document.querySelector(".btn-text").classList.add("d-none");
+    document.querySelector(".btn-loading").classList.remove("d-none");
+    document.getElementById("analyzeBtn").disabled = true;
+    overlay.classList.remove("d-none");
+    const steps = ["step1", "step2", "step3", "step4"];
     const delays = [0, 4000, 10000, 20000];
     steps.forEach((id, i) => {
       setTimeout(() => {
-        document.querySelectorAll('.loading-step').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        document.querySelectorAll(".loading-step").forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
       }, delays[i]);
     });
   });

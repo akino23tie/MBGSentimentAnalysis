@@ -1,83 +1,114 @@
-{% extends "base.html" %}
-{% block title %}Hasil Analisis – SentimenMBG{% endblock %}
-
-{% block extra_head %}
+{% extends "base.html" %} {% block title %}Hasil Analisis – SentimenMBG{% endblock %} {% block extra_head %}
 <style>
-  /* ── Results page specific ── */
+  /* ── Results header ───────────────────────────────────────── */
   .results-header {
     padding: 60px 0 40px;
     position: relative;
     overflow: hidden;
+    background: linear-gradient(160deg, #e8f6fb 0%, #d6eaf5 50%, #c8e4f5 100%);
   }
   .results-header::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 70% 80% at 10% 50%, rgba(0,229,160,.09) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 90% 20%, rgba(0,200,184,.07) 0%, transparent 55%);
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(0, 113, 228, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 113, 228, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
     pointer-events: none;
   }
 
   .back-link {
     color: var(--text-muted);
-    font-size: .82rem;
+    font-size: 0.82rem;
     font-weight: 500;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: .4rem;
-    transition: color .2s;
+    gap: 0.4rem;
+    transition: color 0.2s;
   }
-  .back-link:hover { color: var(--emerald); }
+  .back-link:hover {
+    color: var(--brand-blue);
+  }
 
   .results-title {
     font-size: clamp(1.7rem, 4vw, 2.8rem);
     font-weight: 800;
-    letter-spacing: -.4px;
+    letter-spacing: -0.4px;
+    color: var(--text-primary);
   }
 
-  /* ── Stat cards ── */
+  /* ── Stat cards ───────────────────────────────────────────── */
   .stat-card {
     border-radius: 20px;
     padding: 1.6rem 1.4rem;
     border: 1px solid var(--border);
-    background: var(--bg-card);
-    backdrop-filter: blur(14px);
-    transition: .25s;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow);
+    transition: 0.25s;
     position: relative;
     overflow: hidden;
   }
-  .stat-card:hover { transform: translateY(-4px); }
-
-  .stat-card.total  { border-color: rgba(0,229,160,.18); }
-  .stat-card.pos    { border-color: rgba(34,197,94,.2); }
-  .stat-card.neu    { border-color: rgba(245,158,11,.2); }
-  .stat-card.neg    { border-color: rgba(244,63,94,.2); }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 90px; height: 90px;
-    border-radius: 50%;
-    opacity: .08;
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
   }
-  .stat-card.total::before { background: var(--emerald); }
-  .stat-card.pos::before   { background: #22c55e; }
-  .stat-card.neu::before   { background: #f59e0b; }
-  .stat-card.neg::before   { background: #f43f5e; }
+
+  .stat-card.total {
+    border-color: rgba(0, 113, 228, 0.22);
+  }
+  .stat-card.pos {
+    border-color: rgba(22, 163, 74, 0.25);
+  }
+  .stat-card.neu {
+    border-color: rgba(217, 119, 6, 0.25);
+  }
+  .stat-card.neg {
+    border-color: rgba(220, 38, 38, 0.25);
+  }
+
+  /* Decorative circle */
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+  .stat-card.total::before {
+    background: var(--brand-blue);
+  }
+  .stat-card.pos::before {
+    background: #16a34a;
+  }
+  .stat-card.neu::before {
+    background: #d97706;
+  }
+  .stat-card.neg::before {
+    background: #dc2626;
+  }
 
   .stat-label {
-    font-size: .75rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
   }
-  .stat-card.total .stat-label { color: var(--emerald); }
-  .stat-card.pos   .stat-label { color: #22c55e; }
-  .stat-card.neu   .stat-label { color: #f59e0b; }
-  .stat-card.neg   .stat-label { color: #f43f5e; }
+  .stat-card.total .stat-label {
+    color: var(--brand-blue);
+  }
+  .stat-card.pos .stat-label {
+    color: #16a34a;
+  }
+  .stat-card.neu .stat-label {
+    color: #d97706;
+  }
+  .stat-card.neg .stat-label {
+    color: #dc2626;
+  }
 
   .stat-number {
     font-size: 2.6rem;
@@ -87,145 +118,161 @@
     color: var(--text-primary);
   }
   .stat-pct {
-    font-size: .82rem;
+    font-size: 0.82rem;
     color: var(--text-muted);
-    margin-top: .3rem;
+    margin-top: 0.3rem;
   }
 
-  /* ── Progress bar distribution ── */
+  /* ── Distribution bars ────────────────────────────────────── */
   .dist-section {
-    background: var(--bg-card);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 1.8rem;
+    box-shadow: var(--shadow);
   }
-  .dist-title { font-size: .85rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--text-primary); }
+  .dist-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: var(--text-primary);
+  }
 
   .dist-row {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: .9rem;
+    margin-bottom: 0.9rem;
   }
-  .dist-row:last-child { margin-bottom: 0; }
+  .dist-row:last-child {
+    margin-bottom: 0;
+  }
 
   .dist-label {
     width: 70px;
-    font-size: .8rem;
+    font-size: 0.8rem;
     font-weight: 600;
   }
   .dist-bar-wrap {
     flex: 1;
     height: 10px;
-    background: rgba(255,255,255,.06);
+    background: var(--brand-sky);
     border-radius: 99px;
     overflow: hidden;
   }
   .dist-bar {
     height: 100%;
     border-radius: 99px;
-    transition: width 1s cubic-bezier(.4,0,.2,1);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .dist-bar.pos { background: linear-gradient(90deg,#22c55e,#4ade80); }
-  .dist-bar.neu { background: linear-gradient(90deg,#f59e0b,#fcd34d); }
-  .dist-bar.neg { background: linear-gradient(90deg,#f43f5e,#fb7185); }
-  .dist-pct { width: 40px; text-align: right; font-size: .8rem; font-weight: 600; color: var(--text-muted); }
+  .dist-bar.pos {
+    background: linear-gradient(90deg, #16a34a, #4ade80);
+  }
+  .dist-bar.neu {
+    background: linear-gradient(90deg, #d97706, #fcd34d);
+  }
+  .dist-bar.neg {
+    background: linear-gradient(90deg, #dc2626, #fb7185);
+  }
+  .dist-pct {
+    width: 40px;
+    text-align: right;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
 
-  /* ── Charts placeholder area ── */
+  /* ── Chart cards ──────────────────────────────────────────── */
   .chart-card {
-    background: var(--bg-card);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 1.8rem;
     height: 100%;
+    box-shadow: var(--shadow);
   }
   .chart-card-title {
-    font-size: .85rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 1.2rem;
   }
 
-  /* ── Export button ── */
+  /* ── Action buttons ───────────────────────────────────────── */
   .btn-export {
-    background: linear-gradient(120deg, var(--emerald), var(--teal));
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-navy) 100%);
     border: none;
-    color: #050c0d;
+    color: #fff;
     font-weight: 700;
-    font-size: .9rem;
-    padding: .75rem 2rem;
+    font-size: 0.9rem;
+    padding: 0.75rem 2rem;
     border-radius: 14px;
-    transition: .25s;
+    transition: 0.25s;
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
+    box-shadow: 0 4px 16px rgba(0, 113, 228, 0.28);
+    text-decoration: none;
   }
   .btn-export:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0,229,160,.3);
-    color: #050c0d;
+    box-shadow: 0 8px 24px rgba(0, 113, 228, 0.38);
+    color: #fff;
   }
 
   .btn-back {
-    background: rgba(255,255,255,.06);
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-weight: 600;
-    font-size: .9rem;
-    padding: .75rem 2rem;
+    font-size: 0.9rem;
+    padding: 0.75rem 2rem;
     border-radius: 14px;
-    transition: .25s;
+    transition: 0.25s;
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
     text-decoration: none;
+    box-shadow: 0 2px 8px rgba(15, 76, 129, 0.07);
   }
-  .btn-back:hover { background: rgba(255,255,255,.1); color: var(--text-primary); }
+  .btn-back:hover {
+    background: var(--brand-sky);
+    border-color: rgba(0, 113, 228, 0.25);
+    color: var(--brand-navy);
+  }
 
-  /* ── Section divider ── */
+  /* ── Section divider ──────────────────────────────────────── */
   .section-divider {
     border: none;
     border-top: 1px solid var(--border);
     margin: 2.5rem 0;
   }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 
 <!-- ── Results header ─────────────────────────────────────────── -->
 <section class="results-header">
   <div class="container position-relative">
-
-    <a href="{{ url_for('index') }}" class="back-link mb-3 d-inline-flex">
-      <i class="bi bi-arrow-left"></i> Kembali ke Beranda
-    </a>
+    <a href="{{ url_for('index') }}" class="back-link mb-3 d-inline-flex"> <i class="bi bi-arrow-left"></i> Kembali ke Beranda </a>
 
     <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
       <div>
-        <h1 class="results-title">
-          Hasil <span class="gradient-text">Analisis Sentimen</span>
-        </h1>
+        <h1 class="results-title">Hasil <span class="gradient-text">Analisis Sentimen</span></h1>
         {% if data.video_title %}
-        <p class="mt-2" style="color:var(--text-muted);font-size:.9rem;">
-          <i class="bi bi-youtube me-1" style="color:#f43f5e"></i>{{ data.video_title }}
-        </p>
+        <p class="mt-2" style="color: var(--text-secondary); font-size: 0.9rem"><i class="bi bi-youtube me-1" style="color: #dc2626"></i>{{ data.video_title }}</p>
         {% endif %}
-      <!-- </div>
-      <a href="{{ url_for('export_csv', session_id=data.session_id) }}" class="btn-export">
+      </div>
+      <!-- <a href="{{ url_for('export_csv', session_id=data.session_id) }}" class="btn-export">
         <i class="bi bi-download"></i> Export CSV
-      </a>
-    </div> -->
-
+      </a> -->
+    </div>
   </div>
 </section>
 
-
 <!-- ── Main content ───────────────────────────────────────────── -->
 <div class="container pb-5">
-
   <!-- Stat cards -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
@@ -260,14 +307,13 @@
 
   <!-- Distribution bar + charts -->
   <div class="row g-3 mb-4">
-
     <!-- Distribution bars -->
     <div class="col-lg-4">
       <div class="dist-section h-100">
-        <p class="dist-title"><i class="bi bi-bar-chart-fill me-2" style="color:var(--emerald)"></i>Distribusi Sentimen</p>
+        <p class="dist-title"><i class="bi bi-bar-chart-fill me-2" style="color: var(--brand-blue)"></i>Distribusi Sentimen</p>
 
         <div class="dist-row">
-          <span class="dist-label" style="color:#22c55e;">Positif</span>
+          <span class="dist-label" style="color: #16a34a">Positif</span>
           <div class="dist-bar-wrap">
             <div class="dist-bar pos" style="width:{{ data.positive_pct }}%"></div>
           </div>
@@ -275,7 +321,7 @@
         </div>
 
         <div class="dist-row">
-          <span class="dist-label" style="color:#f59e0b;">Netral</span>
+          <span class="dist-label" style="color: #d97706">Netral</span>
           <div class="dist-bar-wrap">
             <div class="dist-bar neu" style="width:{{ data.neutral_pct }}%"></div>
           </div>
@@ -283,7 +329,7 @@
         </div>
 
         <div class="dist-row">
-          <span class="dist-label" style="color:#f43f5e;">Negatif</span>
+          <span class="dist-label" style="color: #dc2626">Negatif</span>
           <div class="dist-bar-wrap">
             <div class="dist-bar neg" style="width:{{ data.negative_pct }}%"></div>
           </div>
@@ -292,31 +338,33 @@
       </div>
     </div>
 
-    <!-- Pie chart slot -->
+    <!-- Pie chart -->
     <div class="col-lg-4">
-    <div class="chart-card">
+      <div class="chart-card">
         <p class="chart-card-title"><i class="bi bi-pie-chart-fill me-2"></i>Pie Chart</p>
-        <div style="position:relative; height:220px; width:100%;">
-        <canvas id="pieChart"></canvas>
+        <div style="position: relative; height: 220px; width: 100%">
+          <canvas id="pieChart"></canvas>
         </div>
-    </div>
+      </div>
     </div>
 
-    <!-- Bar chart slot -->
+    <!-- Bar chart -->
     <div class="col-lg-4">
-    <div class="chart-card">
+      <div class="chart-card">
         <p class="chart-card-title"><i class="bi bi-bar-chart me-2"></i>Bar Chart</p>
-        <div style="position:relative; height:220px; width:100%;">
-        <canvas id="barChart"></canvas>
+        <div style="position: relative; height: 220px; width: 100%">
+          <canvas id="barChart"></canvas>
         </div>
+      </div>
     </div>
-    </div>
+  </div>
+  <!-- /row -->
 
-  <!-- Word cloud slot -->
+  <!-- Word cloud -->
   {% if data.wordcloud_url %}
   <div class="chart-card mb-4">
     <p class="chart-card-title"><i class="bi bi-cloud-fill me-2"></i>Word Cloud</p>
-    <img src="{{ data.wordcloud_url }}" class="img-fluid w-100" style="border-radius:12px;" alt="Word Cloud" />
+    <img src="{{ data.wordcloud_url }}" class="img-fluid w-100" style="border-radius: 12px" alt="Word Cloud" />
   </div>
   {% endif %}
 
@@ -327,39 +375,47 @@
     <!-- <a href="{{ url_for('export_csv', session_id=data.session_id) }}" class="btn-export">
       <i class="bi bi-download"></i> Download CSV
     </a> -->
-    <a href="{{ url_for('index') }}" class="btn-back">
-      <i class="bi bi-arrow-left"></i> Analisis Baru
-    </a>
+    <a href="{{ url_for('index') }}" class="btn-back"> <i class="bi bi-arrow-left"></i> Analisis Baru </a>
   </div>
-
 </div>
 
-{% endblock %}
-
-{% block extra_scripts %}
+{% endblock %} {% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script>
   const positiveVal = {{ data.positive }};
   const neutralVal  = {{ data.neutral }};
   const negativeVal = {{ data.negative }};
 
-  // Pie
+  // Shared grid & tick color for light bg
+  const gridColor = 'rgba(0, 113, 228, 0.08)';
+  const tickColor = '#7aafc9';
+
+  // Doughnut / Pie
   new Chart(document.getElementById('pieChart'), {
     type: 'doughnut',
     data: {
-      labels: ['Positif','Netral','Negatif'],
+      labels: ['Positif', 'Netral', 'Negatif'],
       datasets: [{
         data: [positiveVal, neutralVal, negativeVal],
-        backgroundColor: ['#22c55e','#f59e0b','#f43f5e'],
-        borderColor: 'transparent',
+        backgroundColor: ['#16a34a', '#d97706', '#dc2626'],
+        borderColor: '#ffffff',
+        borderWidth: 3,
         hoverOffset: 6
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
       cutout: '62%',
       plugins: {
-        legend: { position: 'bottom', labels: { color: '#7da89e', font: { size: 11 }, padding: 14 } }
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: tickColor,
+            font: { size: 11 },
+            padding: 14
+          }
+        }
       }
     }
   });
@@ -368,24 +424,31 @@
   new Chart(document.getElementById('barChart'), {
     type: 'bar',
     data: {
-      labels: ['Positif','Netral','Negatif'],
+      labels: ['Positif', 'Netral', 'Negatif'],
       datasets: [{
         data: [positiveVal, neutralVal, negativeVal],
         backgroundColor: [
-          'rgba(34,197,94,.7)',
-          'rgba(245,158,11,.7)',
-          'rgba(244,63,94,.7)'
+          'rgba(22, 163, 74, 0.75)',
+          'rgba(217, 119, 6, 0.75)',
+          'rgba(220, 38, 38, 0.75)'
         ],
         borderRadius: 8,
         borderSkipped: false
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#7da89e', font: { size: 11 } } },
-        y: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#7da89e', font: { size: 11 } } }
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: tickColor, font: { size: 11 } }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: tickColor, font: { size: 11 } }
+        }
       }
     }
   });
